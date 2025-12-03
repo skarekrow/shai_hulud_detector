@@ -45,12 +45,14 @@ def check_package_json(filepath):
     try:
         with open(filepath, 'r', encoding='utf-8', errors='ignore') as f:
             data = json.load(f)
+            # get will raise AttributeError if data is not a dict
+            # e.g. malformed package.json files for testing may parse as a single string
             scripts = data.get('scripts', {})
             preinstall = scripts.get('preinstall', '')
             # The attack typically runs 'node setup_bun.js'
             if 'setup_bun.js' in preinstall:
                 return True
-    except (json.JSONDecodeError, PermissionError, OSError, UnicodeDecodeError):
+    except (json.JSONDecodeError, AttributeError, PermissionError, OSError, UnicodeDecodeError):
         pass
     return False
 
